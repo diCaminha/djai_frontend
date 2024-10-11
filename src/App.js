@@ -8,7 +8,7 @@ const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const REDIRECT_URI = "https://djai-frontend.onrender.com/callback";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const RESPONSE_TYPE = "code";
-const API_URI = "https://djai-run.onrender.com:5000"
+const API_URI = "https://djai-run.onrender.com"
 
 function Home() {
   const navigate = useNavigate();
