@@ -8,6 +8,7 @@ const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const REDIRECT_URI = "http://localhost:3000/callback";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const RESPONSE_TYPE = "code";
+const API_URI = "https://djai-run.onrender.com:5000"
 
 function Home() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function Callback() {
     const code = query.get("code");
     if (code) {
       axios
-        .post("http://127.0.0.1:5000/register", { code, redirect_uri: REDIRECT_URI })
+        .post(API_URI+"/register", { code, redirect_uri: REDIRECT_URI })
         .then((response) => {
           setToken(response.data.access_token);
           localStorage.setItem("spotify_token", response.data.access_token);
@@ -83,7 +84,7 @@ function Form() {
     setError(null);
     try {
       const response = await axios.post(
-        'http://127.0.0.1:5000/playlists/generate',
+        API_URI+'/playlists/generate',
         { minutes, style, redirect_uri: REDIRECT_URI },
         { headers: { Authorization: `Bearer ${token}` } }
       );
