@@ -2,78 +2,164 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
-import './styles.css';
 
+// Importing Material-UI components
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Container,
+  TextField,
+  CircularProgress,
+  Snackbar,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
+import { Alert } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import StyleIcon from '@mui/icons-material/Style';
+
+// Configuration Constants
 const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
 const API_URI = process.env.REACT_APP_API_URI;
-const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-const RESPONSE_TYPE = "code";
+const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+const RESPONSE_TYPE = 'code';
+const SCOPES = [
+  'playlist-modify-public',
+  'playlist-modify-private',
+  // Add more scopes if needed
+].join(' ');
 
+// Custom theme with palette and typography
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1DB954', // Spotify Green
+    },
+    secondary: {
+      main: '#191414', // Spotify Black
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial',
+  },
+});
+
+// Home Component
 function Home() {
-  const navigate = useNavigate();
-
   const handleSpotifyAuth = () => {
-    window.location.href = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=playlist-modify-public playlist-modify-private`;
+    const authURL = `${AUTH_ENDPOINT}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${encodeURIComponent(
+      SCOPES
+    )}`;
+    window.location.href = authURL;
   };
 
   return (
-    <div className="home-container">
-      <div className="home-box">
-        <h1 className="home-title">Create Your Perfect Playlist</h1>
-        <p className="home-description">This app helps you create the perfect music playlist based on your preferences. Simply set the duration and style of playlist, and let us handle the rest!</p>
-        <button className="button-primary" onClick={handleSpotifyAuth}>Create Playlist</button>
+    <ThemeProvider theme={theme}>
+      <div className="home-container">
+        <AppBar position="static" color="transparent" elevation={0}>
+          <Toolbar>
+            <MusicNoteIcon fontSize="large" color="primary" />
+            <Typography variant="h6" style={{ flexGrow: 1, marginLeft: '10px' }}>
+              Playlist Creator
+            </Typography>
+            <Button color="primary" variant="outlined" onClick={handleSpotifyAuth}>
+              Login with Spotify
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="md" className="home-content">
+          <Typography variant="h2" gutterBottom style={{ fontWeight: 'bold' }}>
+            Craft Your Perfect Playlist
+          </Typography>
+          <Typography variant="h6" gutterBottom>
+            Generate personalized playlists based on your preferred duration and music style.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={handleSpotifyAuth}
+            startIcon={<PlaylistAddIcon />}
+            style={{ marginTop: '30px' }}
+          >
+            Get Started
+          </Button>
+        </Container>
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 
+// Callback Component
 function Callback() {
   const navigate = useNavigate();
-  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    const code = query.get("code");
+    const code = query.get('code');
+
     if (code) {
       axios
-        .post(API_URI+"/register", { code, redirect_uri: REDIRECT_URI })
+        .post(`${API_URI}/register`, { code, redirect_uri: REDIRECT_URI })
         .then((response) => {
-          setToken(response.data.access_token);
-          localStorage.setItem("spotify_token", response.data.access_token);
-          navigate("/form");
+          localStorage.setItem('spotify_token', response.data.access_token);
+          navigate('/form');
         })
         .catch((error) => {
-          console.error("Spotify authentication failed", error);
+          console.error('Spotify authentication failed', error);
+          navigate('/');
         });
     }
   }, [navigate]);
 
-  return <div>Authenticating...</div>;
+  return (
+    <ThemeProvider theme={theme}>
+      <div className="loading-container">
+        <CircularProgress color="primary" size={60} />
+        <Typography variant="h6" style={{ marginTop: '20px' }}>
+          Authenticating with Spotify...
+        </Typography>
+      </div>
+    </ThemeProvider>
+  );
 }
 
+// Form Component
 function Form() {
   const [minutes, setMinutes] = useState('');
   const [style, setStyle] = useState('');
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Your playlist is being created...");
+  const [loadingMessage, setLoadingMessage] = useState('Your playlist is being created...');
   const [error, setError] = useState(null);
   const token = localStorage.getItem('spotify_token');
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!token) {
+      navigate('/');
+    }
+  }, [token, navigate]);
+
+  useEffect(() => {
     if (loading) {
       const messages = [
-        "Your playlist is being created...",
-        "Wait just a little bit more...",
-        "Almost there, hang tight...",
+        'Your playlist is being created...',
+        'Hang tight, we are picking the best tracks...',
+        'Almost there, your tunes are coming...',
       ];
       let index = 0;
       const interval = setInterval(() => {
         setLoadingMessage(messages[index % messages.length]);
         index++;
-      }, 2000);
+      }, 3000);
       return () => clearInterval(interval);
     }
   }, [loading]);
@@ -84,17 +170,14 @@ function Form() {
     setError(null);
     try {
       const response = await axios.post(
-        API_URI+'/playlists/generate',
+        `${API_URI}/playlists/generate`,
         { minutes, style, redirect_uri: REDIRECT_URI },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPlaylist(response.data);
     } catch (error) {
-      if (error.response && error.response.status === 500) {
-        setError('internal');
-      } else {
-        console.error('Submission failed', error);
-      }
+      console.error('Submission failed', error);
+      setError('An error occurred while creating your playlist. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -102,84 +185,130 @@ function Form() {
 
   const handleLogout = () => {
     localStorage.removeItem('spotify_token');
-    navigate("/");
+    navigate('/');
   };
 
   if (loading) {
     return (
-      <div className="app-container loading-container centered-content">
-        <div className="loading-box">
-          <p className="loading-message">{loadingMessage}</p>
+      <ThemeProvider theme={theme}>
+        <div className="loading-container">
+          <CircularProgress color="primary" size={80} />
+          <Typography variant="h6" style={{ marginTop: '20px' }}>
+            {loadingMessage}
+          </Typography>
         </div>
-      </div>
-    );
-  }
-
-  if (error === 'internal') {
-    return (
-      <div className="app-container error-container centered-content">
-        <div className="error-box">
-          <h2 className="error-title">Oops! Something went wrong</h2>
-          <p className="error-description">We encountered an internal problem while creating your playlist. Please try again in a few moments.</p>
-          <img src="/error_image.png" alt="Error" className="error-image" />
-          <button className="button-primary" onClick={() => navigate("/form")}>Try Again</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (playlist) {
-    return (
-      <div className="app-container success-container centered-content">
-        <div className="success-box">
-          <h2 className="success-title">Playlist Created Successfully!</h2>
-          <p className="success-description">Djai created a playlist just for you!</p>
-          <p className="playlist-name">Playlist Name: {playlist.name}</p>
-          <a className="button-primary" href={playlist.external_urls.spotify} target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
-          <button className="button-secondary" onClick={() => navigate("/form")}>Create Another Playlist</button>
-        </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <div className="app-container">
-      <Sidebar handleLogout={handleLogout} />
-      <div className="form-container">
-        <div className="form-box">
-          <h2 className="form-title">Create Your Music Playlist</h2>
-          <p className="form-description">Tell us how long you want your playlist to be and your favorite style of music. We'll craft the perfect playlist for you!</p>
-          <input
-            className="input-field"
-            type="number"
-            value={minutes}
-            onChange={(e) => setMinutes(e.target.value)}
-            placeholder="Minutes"
-          />
-          <input
-            className="input-field"
-            type="text"
-            value={style}
-            onChange={(e) => setStyle(e.target.value)}
-            placeholder="What type of music you like? (e.g., To sleep, To run, Rock, Hiphop)"
-          />
-          <button className="button-primary" onClick={handleSubmit}>Generate Playlist</button>
+    <ThemeProvider theme={theme}>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <MusicNoteIcon fontSize="large" />
+          <Typography variant="h6" style={{ flexGrow: 1, marginLeft: '10px' }}>
+            Playlist Creator
+          </Typography>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+            Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="sm" className="form-container">
+        <Typography variant="h4" gutterBottom style={{ marginTop: '30px', fontWeight: 'bold' }}>
+          Customize Your Playlist
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Specify the duration and style to generate a playlist tailored just for you.
+        </Typography>
+        <TextField
+          label="Duration (Minutes)"
+          type="number"
+          fullWidth
+          margin="normal"
+          value={minutes}
+          onChange={(e) => setMinutes(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <AccessTimeIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextField
+          label="Music Style"
+          fullWidth
+          margin="normal"
+          value={style}
+          onChange={(e) => setStyle(e.target.value)}
+          placeholder="e.g., Rock, Hip-hop, Chill"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <StyleIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={handleSubmit}
+          style={{ marginTop: '20px' }}
+          fullWidth
+          disabled={!minutes || !style}
+        >
+          Generate Playlist
+        </Button>
+      </Container>
+      {/* Snackbar for Error Messages */}
+      <Snackbar open={Boolean(error)} autoHideDuration={6000} onClose={() => setError(null)}>
+        <Alert onClose={() => setError(null)} severity="error" variant="filled">
+          {error}
+        </Alert>
+      </Snackbar>
+      {/* Success Dialog */}
+      {playlist && (
+        <div className="success-container">
+          <Container maxWidth="sm" className="success-content">
+            <Typography variant="h4" gutterBottom style={{ fontWeight: 'bold' }}>
+              Your Playlist is Ready!
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Enjoy your personalized playlist.
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Playlist Name: <strong>{playlist.name}</strong>
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              href={playlist.external_urls.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              startIcon={<MusicNoteIcon />}
+              style={{ marginRight: '10px', marginTop: '20px' }}
+            >
+              Listen on Spotify
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => setPlaylist(null)}
+              style={{ marginTop: '20px' }}
+            >
+              Create Another Playlist
+            </Button>
+          </Container>
         </div>
-      </div>
-    </div>
+      )}
+    </ThemeProvider>
   );
 }
 
-function Sidebar({ handleLogout }) {
-  const navigate = useNavigate();
-  return (
-    <div className="sidebar">
-      <button className="sidebar-button" onClick={() => navigate("/form")}>Create a Playlist</button>
-      <button className="sidebar-button" onClick={handleLogout}>Logout</button>
-    </div>
-  );
-}
-
+// Main App Component
 function App() {
   return (
     <Router>
@@ -188,6 +317,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/callback" element={<Callback />} />
           <Route path="/form" element={<Form />} />
+          {/* Redirect to home if route is not found */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

@@ -2,262 +2,89 @@
 
 /* General Styles */
 body {
-  font-family: 'Poppins', sans-serif;
-  background: #f0f0f0;
   margin: 0;
-  color: #333;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: #f5f5f5;
+}
+
+a {
+  text-decoration: none;
 }
 
 .app-wrapper {
   display: flex;
-  height: 100vh;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.app-container {
-  display: flex;
+.home-container {
+  background-image: url('https://source.unsplash.com/1600x900/?music,concert');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
   flex: 1;
-}
-
-.centered-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  width: 250px;
-  background: #1DB954;
-  color: #ffffff;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar-button {
-  background-color: #1DB954;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  margin: 10px 0;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  text-align: left;
-}
-
-.sidebar-button:hover {
-  background-color: #14833b;
-}
-
-/* Home Styles */
-.home-container {
+.home-content {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  flex: 1;
-}
-
-.home-box {
-  background: #1DB954;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  color: #ffffff;
-  max-width: 500px;
+  padding: 60px 20px;
+  background: rgba(0, 0, 0, 0.6);
 }
 
-.home-title {
-  font-size: 48px;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.home-description {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #f0f0f0;
-  line-height: 1.6;
-}
-
-/* Form Styles */
-.form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-}
-
-.form-box {
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  text-align: center;
-  color: #333;
-}
-
-.form-title {
-  font-size: 36px;
-  margin-bottom: 20px;
-  color: #1DB954;
-  font-weight: bold;
-}
-
-.form-description {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #666;
-  line-height: 1.5;
-}
-
-.input-field {
-  width: 100%;
-  padding: 15px;
-  margin: 15px 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.button-primary {
-  width: 100%;
-  padding: 15px;
-  background-color: #1DB954;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.button-primary:hover {
-  background-color: #14833b;
-}
-
-.button-secondary {
-  width: 100%;
-  padding: 15px;
-  background-color: #333;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-/* Loading Styles */
 .loading-container {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-}
-
-.loading-box {
-  background: #1DB954;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
+  padding: 60px 20px;
   text-align: center;
-  color: #ffffff;
 }
 
-.loading-message {
-  font-size: 24px;
-  color: #ffffff;
-  font-weight: bold;
+.form-container {
+  padding: 40px 20px;
+  background-color: #fff;
+  margin-top: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Success Styles */
 .success-container {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-}
-
-.success-box {
-  background: #1DB954;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
-  text-align: center;
-  color: #ffffff;
-}
-
-.success-title {
-  font-size: 36px;
-  margin-bottom: 20px;
-  color: #ffffff;
-  font-weight: bold;
-}
-
-.success-description {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #f0f0f0;
-  line-height: 1.5;
-}
-
-.playlist-name {
-  font-size: 22px;
-  margin-bottom: 20px;
+  padding: 60px 20px;
+  background-image: url('https://source.unsplash.com/1600x900/?music,success');
+  background-size: cover;
+  background-position: center;
   color: #fff;
 }
 
-/* Error Styles */
-.error-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-.error-box {
-  background: #ff4d4d;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
+.success-content {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 40px;
+  border-radius: 8px;
   text-align: center;
-  color: #ffffff;
 }
 
-.error-title {
-  font-size: 36px;
-  margin-bottom: 20px;
-  color: #ffffff;
-  font-weight: bold;
-}
+@media (max-width: 768px) {
+  .home-content {
+    padding: 30px 15px;
+  }
 
-.error-description {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #f0f0f0;
-  line-height: 1.5;
-}
+  .form-container {
+    padding: 30px 15px;
+  }
 
-.error-image {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 30px;
+  .success-content {
+    padding: 30px 15px;
+  }
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
